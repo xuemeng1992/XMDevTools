@@ -1,0 +1,3 @@
+include ':xmdevtools'
+include ':app'
+rootProject.name = "XMDevTools"
