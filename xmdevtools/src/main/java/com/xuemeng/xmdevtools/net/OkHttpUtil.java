@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.xuemeng.xmdevtools.bean.KeyValue;
 import com.xuemeng.xmdevtools.utils.LoggerUtils;
 import com.xuemeng.xmdevtools.utils.Preconditions;
@@ -100,101 +101,99 @@ public class OkHttpUtil {
     }
 
     //同步get请求
-    public static String get(String url, Map<String, Object> params) {
-        return doGet(url, params, true, true, null);
+    public static <T> T get(Class<T> cls, String url, Map<String, Object> params) {
+        return doGet(cls, url, params, true, true, null);
     }
 
-    public static String get(String url, Map<String, Object> params, ResponseCallback callback) {
-        return doGet(url, params, true, true, callback);
+    public static <T> T get(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doGet(cls, url, params, true, true, callback);
     }
 
-    public static String delete(String url, Map<String, Object> params, ResponseCallback callback) {
-        return doDelete(url, params, true, true, callback);
+    public static <T> T delete(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doDelete(cls, url, params, true, true, callback);
     }
 
-    public static String delete(String url, Map<String, Object> params) {
-        return doDelete(url, params, true, true, null);
+    public static <T> T delete(Class<T> cls, String url, Map<String, Object> params) {
+        return doDelete(cls, url, params, true, true, null);
     }
 
-    public static String patch(String url) {
-        return doPatch(url, true, true, null);
+    public static <T> T patch(Class<T> cls, String url) {
+        return doPatch(cls, url, true, true, null);
     }
 
-    public static String patch(String url, ResponseCallback callback) {
-        return doPatch(url, true, true, null);
-    }
-
-    public
-    static String patch(String url, Map<String, Object> params) {
-        return doPatch(url, params, true, true, null);
+    public static <T> T patch(Class<T> cls, String url, ResponseCallback callback) {
+        return doPatch(cls, url, true, true, null);
     }
 
     public
-    static String patch(String url, Map<String, Object> params, ResponseCallback callback) {
-        return doPatch(url, params, true, true, callback);
+    static <T> T patch(Class<T> cls, String url, Map<String, Object> params) {
+        return doPatch(cls, url, params, true, true, null);
     }
 
-    public static String put(String url, Map<String, Object> params) {
-        return doPut(url, params, true, true, null);
+    public
+    static <T> T patch(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPatch(cls, url, params, true, true, callback);
     }
 
-    public static String get(String url) {
-        return get(url, "");
+    public static <T> T put(Class<T> cls, String url, Map<String, Object> params) {
+        return doPut(cls, url, params, true, true, null);
     }
 
-    public static String get(String url, String simpleParam) {
+    public static <T> T get(Class<T> cls, String url) {
+        return get(cls, url, "");
+    }
+
+    public static <T> T get(Class<T> cls, String url, String simpleParam) {
         String urlStr;
         if (TextUtils.isEmpty(simpleParam)) {
             urlStr = url;
         } else {
             urlStr = url + "?" + simpleParam.replaceAll(" ", "%20");
         }
-
-        return doGet(urlStr, null, true, true, null);
-
+        return doGet(cls, urlStr, null, true, true, null);
     }
 
     //同步get请求，且返回数据大
-    public static String getHeavy(String url, Map<String, Object> params) {
-        return doGet(url, params, false, true, null);
+    public static <T> T getHeavy(Class<T> cls, String url, Map<String, Object> params) {
+        return doGet(cls, url, params, false, true, null);
     }
 
     //异步get请求
-    public static void getAsync(String url, Map<String, Object> params, ResponseCallback callback) {
-        doGet(url, params, false, true, callback);
+    public static <T> void getAsync(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        doGet(cls, url, params, false, true, callback);
     }
 
     //post
-    public static String post(String url, String params) {
+    public static <T> T post(Class<T> cls, String url, String params) {
         String urlStr = url + "?" + params.replaceAll(" ", "%20");
-        return post(urlStr);
+        return post(cls, urlStr);
     }
 
-    public static String post(String url) {
-        return post(url, new HashMap<String, Object>());
+    public static <T> T post(Class<T> cls, String url) {
+        return post(cls, url, new HashMap<String, Object>());
     }
 
     //同步post
-    public static String post(String url, Map<String, Object> params) {
-        return doPost(url, params, null, true, true, null);
+    public static <T> T post(Class<T> cls, String url, Map<String, Object> params) {
+        return doPost(cls, url, params, null, true, true, null);
     }
 
-    public static String post(String url, Map<String, Object> params, Object o) {
-        return doPost(url, params, null, true, true, null, o);
+    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, Object o) {
+        return doPost(cls, url, params, null, true, true, null, o);
     }
 
-    public static String post(String url, Map<String, Object> params, boolean isData) {
-        return doPost(url, params, true, true, null);
+    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, boolean isData) {
+        return doPost(cls, url, params, true, true, null);
     }
 
     //同步post 但返回数据很大
-    public static String postHeavy(String url, Map<String, Object> params) {
-        return doPost(url, params, null, false, true, null);
+    public static <T> T postHeavy(Class<T> cls, String url, Map<String, Object> params) {
+        return doPost(cls, url, params, null, false, true, null);
     }
 
     //异步post
-    public static void postAsync(String url, Map<String, Object> params, ResponseCallback callback) {
-        doPost(url, params, null, true, false, callback);
+    public static <T> void postAsync(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        doPost(cls, url, params, null, true, false, callback);
     }
 
     //请求byte[]
@@ -211,11 +210,11 @@ public class OkHttpUtil {
      * @param filepath
      * @return
      */
-    public static String postFile(String url, Map<String, Object> params, String multiPartKey,
-                                  final String filepath) {
+    public static <T> T postFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
+                                 final String filepath) {
         List<String> filepathList = new ArrayList<>();
         filepathList.add(filepath);
-        return postMultiFile(url, params, TextUtils.isEmpty(multiPartKey) ? "uploadIcon" : multiPartKey,
+        return postMultiFile(cls, url, params, TextUtils.isEmpty(multiPartKey) ? "uploadIcon" : multiPartKey,
                 filepathList);
     }
 
@@ -228,12 +227,12 @@ public class OkHttpUtil {
      * @param filepaths
      * @return
      */
-    public static String postMultiFile(String url, Map<String, Object> params, String multiPartKey,
-                                       final List<String> filepaths) {
+    public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
+                                      final List<String> filepaths) {
         if (Preconditions.isNullOrEmpty(filepaths)) {
             return null;
         }
-        return postMultiFile(url, params, getMutilFilePart(multiPartKey, filepaths), true, null);
+        return postMultiFile(cls, url, params, getMutilFilePart(multiPartKey, filepaths), true, null);
     }
 
     /**
@@ -244,8 +243,8 @@ public class OkHttpUtil {
      * @param multilKeyFile key  -- file map
      * @return
      */
-    public static String postMultiFile(String url, Map<String, Object> params, ArrayList<KeyValue> multilKeyFile) {
-        return postMultiFile(url, params, multilKeyFile, true, null);
+    public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, ArrayList<KeyValue> multilKeyFile) {
+        return postMultiFile(cls, url, params, multilKeyFile, true, null);
     }
 
     /**
@@ -254,21 +253,21 @@ public class OkHttpUtil {
      * @param keyFileMap
      * @return
      */
-    public static String postMultiFile(String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, boolean isSyn, ResponseCallback callback) {
+    public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, boolean isSyn, ResponseCallback callback) {
 
         if (Preconditions.isNullOrEmpty(keyFileMap)) {
             return null;
         }
-        return doPost(url, params, keyFileMap, true, isSyn, callback);
+        return doPost(cls, url, params, keyFileMap, true, isSyn, callback);
     }
 
     //异步post带文件
-    public static void postMultiFileAsync(String url, Map<String, Object> params, String multiPartKey,
-                                          final List<String> filepaths, ResponseCallback callback) {
+    public static <T> void postMultiFileAsync(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
+                                              final List<String> filepaths, ResponseCallback callback) {
         if (Preconditions.isNullOrEmpty(filepaths)) {
             return;
         }
-        doPost(url, params, getMutilFilePart(multiPartKey, filepaths), true, false, callback);
+        doPost(cls, url, params, getMutilFilePart(multiPartKey, filepaths), true, false, callback);
     }
 
     /**
@@ -278,8 +277,7 @@ public class OkHttpUtil {
      * @param filepaths
      * @return
      */
-    private static ArrayList<KeyValue> getMutilFilePart(String multiPartKey,
-                                                        final List<String> filepaths) {
+    private static ArrayList<KeyValue> getMutilFilePart(String multiPartKey, final List<String> filepaths) {
         String key;
         if (TextUtils.isEmpty(multiPartKey)) {
             key = "picFileList";
@@ -287,7 +285,6 @@ public class OkHttpUtil {
             key = multiPartKey;
         }
         ArrayList<KeyValue> keyFileList = new ArrayList<>();
-
         for (String filePath : filepaths) {
             keyFileList.add(new KeyValue(key, filePath));
         }
@@ -307,18 +304,18 @@ public class OkHttpUtil {
      * @return
      * @throws IOException
      */
-    private static String doRequst(
-            String method, String url, Map<String, Object> params,
-            ArrayList<KeyValue> keyFileList, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback, Object o) {
-        String resultStr = "";
+    private static <T> T doRequst(Class<T> cls,
+                                  String method, String url, Map<String, Object> params,
+                                  ArrayList<KeyValue> keyFileList, boolean isLiteResp,
+                                  boolean isSync, ResponseCallback callback, Object o) {
+        T resultStr = null;
         Response response = getResponse(method, url, params, keyFileList, isSync, callback, o);
         //如果响应体比较小，使用String()方法来得到String, 否则需要用流的方式
         try {
             if (isLiteResp) {
-                resultStr = response.body().string();
+                resultStr = new Gson().fromJson(response.body().string(), cls);
             } else {
-                resultStr = convertInputStream2Str(response.body().byteStream());
+                resultStr = new Gson().fromJson(convertInputStream2Str(response.body().byteStream()), cls);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -406,52 +403,52 @@ public class OkHttpUtil {
         return outputStream.toByteArray();
     }
 
-    private static String doGet(
-            String url, Map<String, Object> params, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_GET, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doGet(Class<T> cls,
+                               String url, Map<String, Object> params, boolean isLiteResp,
+                               boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_GET, url, params, null, isLiteResp, isSync, callback, null);
     }
 
-    private static String doPut(
-            String url, Map<String, Object> params, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_PUT, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPut(Class<T> cls,
+                               String url, Map<String, Object> params, boolean isLiteResp,
+                               boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_PUT, url, params, null, isLiteResp, isSync, callback, null);
     }
 
-    private static String doPatch(
-            String url, Map<String, Object> params, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_PATCH, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPatch(Class<T> cls,
+                                 String url, Map<String, Object> params, boolean isLiteResp,
+                                 boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_PATCH, url, params, null, isLiteResp, isSync, callback, null);
     }
 
-    private static String doPatch(
-            String url, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_NO_PARAM_PATCH, url, null, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPatch(Class<T> cls,
+                                 String url, boolean isLiteResp,
+                                 boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_NO_PARAM_PATCH, url, null, null, isLiteResp, isSync, callback, null);
     }
 
-    private static String doDelete(
-            String url, Map<String, Object> params, boolean isLiteResp,
-            boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_DELETE, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doDelete(Class<T> cls,
+                                  String url, Map<String, Object> params, boolean isLiteResp,
+                                  boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_DELETE, url, params, null, isLiteResp, isSync, callback, null);
     }
 
-    private static String doPost(
-            String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
-            boolean isLiteResp, boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, null);
+    private static <T> T doPost(Class<T> cls,
+                                String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
+                                boolean isLiteResp, boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, null);
     }
 
-    private static String doPost(
-            String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
-            boolean isLiteResp, boolean isSync, ResponseCallback callback, Object o) {
-        return doRequst(METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, o);
+    private static <T> T doPost(Class<T> cls,
+                                String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
+                                boolean isLiteResp, boolean isSync, ResponseCallback callback, Object o) {
+        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, o);
     }
 
-    private static String doPost(
-            String url, Map<String, Object> params,
-            boolean isLiteResp, boolean isSync, ResponseCallback callback) {
-        return doRequst(METHOD_POST_QUERY, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPost(Class<T> cls,
+                                String url, Map<String, Object> params,
+                                boolean isLiteResp, boolean isSync, ResponseCallback callback) {
+        return doRequst(cls, METHOD_POST_QUERY, url, params, null, isLiteResp, isSync, callback, null);
     }
 
     /**
