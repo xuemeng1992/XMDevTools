@@ -607,7 +607,7 @@ public class OkHttpUtil {
                 String path = filePath.getValue();
                 if (!Preconditions.isNullOrEmpty(key) && !Preconditions.isNullOrEmpty(path)) {
                     builder.addFormDataPart(
-                            key, path, RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
+                            key,path.split(File.separator)[path.split(File.separator).length - 1] , RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
                 }
             }
         }
