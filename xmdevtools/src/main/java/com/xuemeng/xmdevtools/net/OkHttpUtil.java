@@ -50,7 +50,7 @@ public class OkHttpUtil {
     private static final String METHOD_NO_PARAM_PATCH = "PATCH_NO_PARAM";
     private static final String METHOD_DELETE = "DELETE";
     private static final String CHARSET_NAME = "UTF-8";
-    public static final int TIME_OUT = 30;//网络超时时间 单位秒
+    public static final int TIME_OUT = 15;//网络超时时间 单位秒
 
     private static final OkHttpClient mOkHttpClient = new OkHttpClient.Builder()
             .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
