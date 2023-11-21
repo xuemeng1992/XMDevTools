@@ -50,15 +50,13 @@ public class OkHttpUtil {
     private static final String METHOD_NO_PARAM_PATCH = "PATCH_NO_PARAM";
     private static final String METHOD_DELETE = "DELETE";
     private static final String CHARSET_NAME = "UTF-8";
-    public static final int TIME_OUT = 120;//网络超时时间 单位秒
+    public static final int TIME_OUT = 30;//网络超时时间 单位秒
 
     private static final OkHttpClient mOkHttpClient = new OkHttpClient.Builder()
             .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
             .readTimeout(TIME_OUT, TimeUnit.SECONDS)
             .addInterceptor(new HttpLoggingInterceptor()
-                    .setLevel(false
-                            ? HttpLoggingInterceptor.Level.BASIC
-                            : HttpLoggingInterceptor.Level.BODY))
+            .setLevel(false ? HttpLoggingInterceptor.Level.BASIC : HttpLoggingInterceptor.Level.BODY))
 //                    //链路复用
             .connectionPool(new ConnectionPool())
 //                    //失败重连
