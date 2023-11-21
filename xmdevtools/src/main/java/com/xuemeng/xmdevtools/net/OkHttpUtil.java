@@ -56,7 +56,7 @@ public class OkHttpUtil {
             .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
             .readTimeout(TIME_OUT, TimeUnit.SECONDS)
             .addInterceptor(new HttpLoggingInterceptor()
-            .setLevel(false ? HttpLoggingInterceptor.Level.BASIC : HttpLoggingInterceptor.Level.BODY))
+                    .setLevel(false ? HttpLoggingInterceptor.Level.BASIC : HttpLoggingInterceptor.Level.BODY))
 //                    //链路复用
             .connectionPool(new ConnectionPool())
 //                    //失败重连
@@ -192,6 +192,10 @@ public class OkHttpUtil {
     //异步post
     public static <T> void postAsync(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
         doPost(cls, url, params, null, true, false, callback);
+    }
+
+    public static <T> void postAsync(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
+        doPost(cls, url, params, null, true, false, callback, o);
     }
 
     //请求byte[]
@@ -605,7 +609,7 @@ public class OkHttpUtil {
                 String path = filePath.getValue();
                 if (!Preconditions.isNullOrEmpty(key) && !Preconditions.isNullOrEmpty(path)) {
                     builder.addFormDataPart(
-                            key,path.split(File.separator)[path.split(File.separator).length - 1] , RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
+                            key, path.split(File.separator)[path.split(File.separator).length - 1], RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
                 }
             }
         }
