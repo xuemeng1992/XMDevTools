@@ -473,13 +473,26 @@ public class OkHttpUtil {
         Request request = null;
         if (method.equals(METHOD_GET)) {  //GET请求
             String reqStr;
+            String headerStr = null;
             if (!Preconditions.isNullOrEmpty(params)) {
+                if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
+                    headerStr = (String) params.get("HEADER");
+                    params.remove("HEADER");
+                }
                 reqStr = attachHttpGetParams(url, params);
             } else {
                 reqStr = url;
             }
             LoggerUtils.Log().i("执行Get请求---" + reqStr);
-            request = new Request.Builder().url(reqStr).build();
+            if (!Preconditions.isNullOrEmpty(headerStr)) {
+                String[] headers = headerStr.split(",");
+                request = new Request.Builder()
+                        .url(reqStr)
+                        .addHeader(headers[0], headers[1])
+                        .build();
+            } else {
+                request = new Request.Builder().url(reqStr).build();
+            }
         } else if (method.equals(METHOD_DELETE)) {  //Delete请求
             String reqStr;
             if (!Preconditions.isNullOrEmpty(params)) {
