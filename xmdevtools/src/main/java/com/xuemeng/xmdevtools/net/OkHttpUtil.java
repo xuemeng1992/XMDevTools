@@ -9,6 +9,8 @@ import com.xuemeng.xmdevtools.bean.KeyValue;
 import com.xuemeng.xmdevtools.utils.LoggerUtils;
 import com.xuemeng.xmdevtools.utils.Preconditions;
 
+import org.jsoup.internal.StringUtil;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,6 +65,7 @@ public class OkHttpUtil {
             .retryOnConnectionFailure(true)
             .build();
     private static Context applicationCtx;
+    private static String header;
 
     /**
      * 统一获取配置好了的 OKhttpClient实例
@@ -550,15 +553,33 @@ public class OkHttpUtil {
      * 构造一个简单的Post Json请求体
      */
     private static Request buildSimplePostJsonRequest(String url, Map<String, Object> params) {
+        if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
+            String headerStr = (String) params.get("HEADER");
+            String[] headers = headerStr.split(",");
+            params.remove("HEADER");
+            //JSON字符串
+            RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
+            return new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader(headers[0], headers[1])
+                    .build();
+        }
         //JSON字符串
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-        return new Request.Builder().url(url).post(requestBody).build();
+        return new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
     }
 
     private static Request buildSimplePostJsonRequest(String url, Object params) {
         //JSON字符串
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-        return new Request.Builder().url(url).post(requestBody).build();
+        return new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
     }
 
     /**
