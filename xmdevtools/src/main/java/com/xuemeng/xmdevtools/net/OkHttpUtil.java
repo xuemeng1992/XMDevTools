@@ -88,6 +88,7 @@ public class OkHttpUtil {
         return mOkHttpClient
                 .newBuilder()
                 .sslSocketFactory(SSLSocketFactory.getSSLstrategy().getSocketFactory(), SSLSocketFactory.trustManager)
+                .hostnameVerifier((hostname, session) -> true)
                 .build();
     }
 
