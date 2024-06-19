@@ -558,6 +558,13 @@ public class OkHttpUtil {
      * 构造一个简单的PUT Json请求体
      */
     private static Request buildSimplePutJsonRequest(String url, Map<String, Object> params) {
+        if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
+            String headerStr = (String) params.get("HEADER");
+            String[] headers = headerStr.split(",");
+            params.remove("HEADER");
+            RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
+            return new Request.Builder().url(url).put(requestBody).addHeader(headers[0], headers[1]).build();
+        }
         //JSON字符串
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
         return new Request.Builder().url(url).put(requestBody).build();
