@@ -529,7 +529,11 @@ public class OkHttpUtil {
                     request = buildMultiFileRequest(url, params, keyFileList);
                 }
             } else {
-                request = buildSimplePostJsonRequest(url, o);
+                if (o instanceof String) {
+                    request = buildSimplePostStringRequest(url, (String) o);
+                } else {
+                    request = buildSimplePostJsonRequest(url, o);
+                }
             }
         }
         return request;
@@ -568,6 +572,16 @@ public class OkHttpUtil {
         //JSON字符串
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
         return new Request.Builder().url(url).put(requestBody).build();
+    }
+
+    private static Request buildSimplePostStringRequest(String url, String val) {
+        //字符串
+        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JSON, val);
+        return new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .addHeader("Content-Type", "application/json")
+                .build();
     }
 
     /**
