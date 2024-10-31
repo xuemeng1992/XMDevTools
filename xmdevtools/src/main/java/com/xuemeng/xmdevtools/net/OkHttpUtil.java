@@ -9,8 +9,6 @@ import com.xuemeng.xmdevtools.bean.KeyValue;
 import com.xuemeng.xmdevtools.utils.LoggerUtils;
 import com.xuemeng.xmdevtools.utils.Preconditions;
 
-import org.jsoup.internal.StringUtil;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,9 +36,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-/**
- * 需要在application中初始化 上下文
- */
 public class OkHttpUtil {
     private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
@@ -53,38 +48,19 @@ public class OkHttpUtil {
     private static final String METHOD_DELETE = "DELETE";
     private static final String CHARSET_NAME = "UTF-8";
     public static final int TIME_OUT = 15;//网络超时时间 单位秒
+    public static final String HEADER_KEY = "HEADER";
 
     private static final OkHttpClient mOkHttpClient = new OkHttpClient.Builder()
             .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
             .readTimeout(TIME_OUT, TimeUnit.SECONDS)
-            .addInterceptor(new HttpLoggingInterceptor()
-                    .setLevel(false ? HttpLoggingInterceptor.Level.BASIC : HttpLoggingInterceptor.Level.BODY))
-//                    //链路复用
+            .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            //链路复用
             .connectionPool(new ConnectionPool())
-//                    //失败重连
+            //失败重连
             .retryOnConnectionFailure(true)
             .build();
-    private static Context applicationCtx;
-    private static String header;
 
-    /**
-     * 统一获取配置好了的 OKhttpClient实例
-     *
-     * @param context
-     * @param isNeedHandleErrorBySelf
-     * @return
-     */
-    public static OkHttpClient getOKHttpClient(Context context, boolean isNeedHandleErrorBySelf) {
-        return getOKHttpClientInterceptor(context, isNeedHandleErrorBySelf);
-    }
-
-    /**
-     * * @param context
-     *
-     * @param isNeedHandleErrorBySelf
-     * @return
-     */
-    public static OkHttpClient getOKHttpClientInterceptor(Context context, boolean isNeedHandleErrorBySelf) {
+    public static OkHttpClient getOKHttpClientInterceptor() {
         return mOkHttpClient
                 .newBuilder()
                 .sslSocketFactory(SSLSocketFactory.getSSLstrategy().getSocketFactory(), SSLSocketFactory.trustManager)
@@ -93,52 +69,41 @@ public class OkHttpUtil {
     }
 
 
-    /**
-     * 全局初始化 context
-     *
-     * @param ctx
-     */
-    public static void initContext(Context ctx) {
-        applicationCtx = ctx;
-    }
-
     //同步get请求
     public static <T> T get(Class<T> cls, String url, Map<String, Object> params) {
-        return doGet(cls, url, params, true, true, null);
+        return doGet(cls, url, params, true, null);
     }
 
     public static <T> T get(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        return doGet(cls, url, params, true, true, callback);
+        return doGet(cls, url, params, true, callback);
     }
 
     public static <T> T delete(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        return doDelete(cls, url, params, true, true, callback);
+        return doDelete(cls, url, params, true, callback);
     }
 
     public static <T> T delete(Class<T> cls, String url, Map<String, Object> params) {
-        return doDelete(cls, url, params, true, true, null);
+        return doDelete(cls, url, params, true, null);
     }
 
     public static <T> T patch(Class<T> cls, String url) {
-        return doPatch(cls, url, true, true, null);
+        return doPatch(cls, url, true, null);
     }
 
     public static <T> T patch(Class<T> cls, String url, ResponseCallback callback) {
-        return doPatch(cls, url, true, true, null);
+        return doPatch(cls, url, true, callback);
     }
 
-    public
-    static <T> T patch(Class<T> cls, String url, Map<String, Object> params) {
-        return doPatch(cls, url, params, true, true, null);
+    public static <T> T patch(Class<T> cls, String url, Map<String, Object> params) {
+        return doPatch(cls, url, params, true, null);
     }
 
-    public
-    static <T> T patch(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        return doPatch(cls, url, params, true, true, callback);
+    public static <T> T patch(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPatch(cls, url, params, true, callback);
     }
 
     public static <T> T put(Class<T> cls, String url, Map<String, Object> params) {
-        return doPut(cls, url, params, true, true, null);
+        return doPut(cls, url, params, true, null);
     }
 
     public static <T> T get(Class<T> cls, String url) {
@@ -152,17 +117,17 @@ public class OkHttpUtil {
         } else {
             urlStr = url + "?" + simpleParam.replaceAll(" ", "%20");
         }
-        return doGet(cls, urlStr, null, true, true, null);
+        return doGet(cls, urlStr, null, true, null);
     }
 
     //同步get请求，且返回数据大
     public static <T> T getHeavy(Class<T> cls, String url, Map<String, Object> params) {
-        return doGet(cls, url, params, false, true, null);
+        return doGet(cls, url, params, false, null);
     }
 
     //异步get请求
     public static <T> void getAsync(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        doGet(cls, url, params, false, true, callback);
+        doGet(cls, url, params, false, callback);
     }
 
     //post
@@ -177,34 +142,38 @@ public class OkHttpUtil {
 
     //同步post
     public static <T> T post(Class<T> cls, String url, Map<String, Object> params) {
-        return doPost(cls, url, params, null, true, true, null);
+        return doPost(cls, url, params, null, true, null);
     }
 
     public static <T> T post(Class<T> cls, String url, Map<String, Object> params, Object o) {
-        return doPost(cls, url, params, null, true, true, null, o);
-    }
-
-    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, boolean isData) {
-        return doPost(cls, url, params, true, true, null);
+        return doPost(cls, url, params, null, true, null, o);
     }
 
     //同步post 但返回数据很大
     public static <T> T postHeavy(Class<T> cls, String url, Map<String, Object> params) {
-        return doPost(cls, url, params, null, false, true, null);
+        return doPost(cls, url, params, null, false, null);
     }
 
     //异步post
     public static <T> void postAsync(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        doPost(cls, url, params, null, true, false, callback);
+        doPost(cls, url, params, null, true, callback);
     }
 
     public static <T> void postAsync(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
-        doPost(cls, url, params, null, true, false, callback, o);
+        doPost(cls, url, params, null, true, callback, o);
+    }
+
+    public static <T> T postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPost(cls, url, params, null, false, callback);
+    }
+
+    public static <T> T postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
+        return doPost(cls, url, params, null, false, callback, o);
     }
 
     //请求byte[]
     public static byte[] postReturnByte(String url, Map<String, Object> params) {
-        return doRequestByte(METHOD_POST_BODY, url, params, null, true, null, null);
+        return doRequestByte(METHOD_POST_BODY, url, params, null, null, null);
     }
 
     /**
@@ -216,12 +185,10 @@ public class OkHttpUtil {
      * @param filepath
      * @return
      */
-    public static <T> T postFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
-                                 final String filepath) {
+    public static <T> T postFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey, final String filepath) {
         List<String> filepathList = new ArrayList<>();
         filepathList.add(filepath);
-        return postMultiFile(cls, url, params, TextUtils.isEmpty(multiPartKey) ? "uploadIcon" : multiPartKey,
-                filepathList);
+        return postMultiFile(cls, url, params, TextUtils.isEmpty(multiPartKey) ? "uploadIcon" : multiPartKey, filepathList);
     }
 
     /**
@@ -233,8 +200,7 @@ public class OkHttpUtil {
      * @param filepaths
      * @return
      */
-    public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
-                                      final List<String> filepaths) {
+    public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, String multiPartKey, final List<String> filepaths) {
         if (Preconditions.isNullOrEmpty(filepaths)) {
             return null;
         }
@@ -260,20 +226,18 @@ public class OkHttpUtil {
      * @return
      */
     public static <T> T postMultiFile(Class<T> cls, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, boolean isSyn, ResponseCallback callback) {
-
         if (Preconditions.isNullOrEmpty(keyFileMap)) {
             return null;
         }
-        return doPost(cls, url, params, keyFileMap, true, isSyn, callback);
+        return doPost(cls, url, params, keyFileMap, true, callback);
     }
 
     //异步post带文件
-    public static <T> void postMultiFileAsync(Class<T> cls, String url, Map<String, Object> params, String multiPartKey,
-                                              final List<String> filepaths, ResponseCallback callback) {
+    public static <T> void postMultiFileAsync(Class<T> cls, String url, Map<String, Object> params, String multiPartKey, final List<String> filepaths, ResponseCallback callback) {
         if (Preconditions.isNullOrEmpty(filepaths)) {
             return;
         }
-        doPost(cls, url, params, getMutilFilePart(multiPartKey, filepaths), true, false, callback);
+        doPost(cls, url, params, getMutilFilePart(multiPartKey, filepaths), true, callback);
     }
 
     /**
@@ -305,17 +269,16 @@ public class OkHttpUtil {
      * @param params     路径
      * @param isLiteResp 同步请求 ：返回数据很小吗，如果为true用string解析结果， 否则用流
      *                   异步请求 ：随便传 不受影响
-     * @param isSync     是否是同步请求
      * @param callback   如果上面是false,需要传入回调
      * @return
      * @throws IOException
      */
-    private static <T> T doRequst(Class<T> cls,
-                                  String method, String url, Map<String, Object> params,
-                                  ArrayList<KeyValue> keyFileList, boolean isLiteResp,
-                                  boolean isSync, ResponseCallback callback, Object o) {
+    private static <T> T doRequst(Class<T> cls, String method, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileList, boolean isLiteResp, ResponseCallback callback, Object o) {
         T resultStr = null;
-        Response response = getResponse(method, url, params, keyFileList, isSync, callback, o);
+        Response response = getResponse(method, url, params, keyFileList, callback, o);
+        if (response == null) {
+            return null;
+        }
         //如果响应体比较小，使用String()方法来得到String, 否则需要用流的方式
         try {
             if (isLiteResp) {
@@ -337,17 +300,13 @@ public class OkHttpUtil {
      * @param url
      * @param params
      * @param keyFileList
-     * @param isSync
      * @param callback
      * @return
      */
-    private static byte[] doRequestByte(
-            String method, String url, Map<String, Object> params,
-            ArrayList<KeyValue> keyFileList,
-            boolean isSync, ResponseCallback callback, Object o) {
+    private static byte[] doRequestByte(String method, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileList, ResponseCallback callback, Object o) {
         byte[] byteResult = new byte[]{};
         //构造请求体
-        Response response = getResponse(method, url, params, keyFileList, isSync, callback, o);
+        Response response = getResponse(method, url, params, keyFileList, callback, o);
         if (response == null) {
             return byteResult;
         }
@@ -360,32 +319,31 @@ public class OkHttpUtil {
         return byteResult;
     }
 
-    private static Response getResponse(
-            String method, String url, Map<String, Object> params,
-            ArrayList<KeyValue> keyFileMap,
-            boolean isSync, ResponseCallback callback, Object o) {
+    private static Response getResponse(String method, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, ResponseCallback callback, Object o) {
         //构造请求体
         Request request = buildRequest(method, url, params, keyFileMap, o);
         //返回response
         Response response = null;
         try {
-            if (isSync) {
-                response = getOKHttpClientInterceptor(applicationCtx, false).newCall(request).execute();
-            } else {
-                getOKHttpClientInterceptor(applicationCtx, false).newCall(request).execute();
-            }
+            response = getOKHttpClientInterceptor().newCall(request).execute();
             if (!Preconditions.isNullOrEmpty(callback)) {
                 callback.onResponse(response);
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            callback.onFailure(e);
+            if (!Preconditions.isNullOrEmpty(callback)) {
+                callback.onFailure(e);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            callback.onFailure(e);
+            if (!Preconditions.isNullOrEmpty(callback)) {
+                callback.onFailure(e);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onFailure(e);
+            if (!Preconditions.isNullOrEmpty(callback)) {
+                callback.onFailure(e);
+            }
         }
         return response;
     }
@@ -409,52 +367,36 @@ public class OkHttpUtil {
         return outputStream.toByteArray();
     }
 
-    private static <T> T doGet(Class<T> cls,
-                               String url, Map<String, Object> params, boolean isLiteResp,
-                               boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_GET, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doGet(Class<T> cls, String url, Map<String, Object> params, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_GET, url, params, null, isLiteResp, callback, null);
     }
 
-    private static <T> T doPut(Class<T> cls,
-                               String url, Map<String, Object> params, boolean isLiteResp,
-                               boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_PUT, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPut(Class<T> cls, String url, Map<String, Object> params, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_PUT, url, params, null, isLiteResp, callback, null);
     }
 
-    private static <T> T doPatch(Class<T> cls,
-                                 String url, Map<String, Object> params, boolean isLiteResp,
-                                 boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_PATCH, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPatch(Class<T> cls, String url, Map<String, Object> params, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_PATCH, url, params, null, isLiteResp, callback, null);
     }
 
-    private static <T> T doPatch(Class<T> cls,
-                                 String url, boolean isLiteResp,
-                                 boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_NO_PARAM_PATCH, url, null, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPatch(Class<T> cls, String url, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_NO_PARAM_PATCH, url, null, null, isLiteResp, callback, null);
     }
 
-    private static <T> T doDelete(Class<T> cls,
-                                  String url, Map<String, Object> params, boolean isLiteResp,
-                                  boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_DELETE, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doDelete(Class<T> cls, String url, Map<String, Object> params, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_DELETE, url, params, null, isLiteResp, callback, null);
     }
 
-    private static <T> T doPost(Class<T> cls,
-                                String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
-                                boolean isLiteResp, boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, null);
+    private static <T> T doPost(Class<T> cls, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, callback, null);
     }
 
-    private static <T> T doPost(Class<T> cls,
-                                String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap,
-                                boolean isLiteResp, boolean isSync, ResponseCallback callback, Object o) {
-        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, isSync, callback, o);
+    private static <T> T doPost(Class<T> cls, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileMap, boolean isLiteResp, ResponseCallback callback, Object o) {
+        return doRequst(cls, METHOD_POST_BODY, url, params, keyFileMap, isLiteResp, callback, o);
     }
 
-    private static <T> T doPost(Class<T> cls,
-                                String url, Map<String, Object> params,
-                                boolean isLiteResp, boolean isSync, ResponseCallback callback) {
-        return doRequst(cls, METHOD_POST_QUERY, url, params, null, isLiteResp, isSync, callback, null);
+    private static <T> T doPost(Class<T> cls, String url, Map<String, Object> params, boolean isLiteResp, ResponseCallback callback) {
+        return doRequst(cls, METHOD_POST_QUERY, url, params, null, isLiteResp, callback, null);
     }
 
     /**
@@ -466,42 +408,12 @@ public class OkHttpUtil {
      * @param keyFileList
      * @return
      */
-    private static Request buildRequest(
-            String method, String url, Map<String, Object> params,
-            ArrayList<KeyValue> keyFileList, Object o) {
-        //构造请求体
+    private static Request buildRequest(String method, String url, Map<String, Object> params, ArrayList<KeyValue> keyFileList, Object o) {
         Request request = null;
         if (method.equals(METHOD_GET)) {  //GET请求
-            String reqStr;
-            String headerStr = null;
-            if (!Preconditions.isNullOrEmpty(params)) {
-                if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
-                    headerStr = (String) params.get("HEADER");
-                    params.remove("HEADER");
-                }
-                reqStr = attachHttpGetParams(url, params);
-            } else {
-                reqStr = url;
-            }
-            LoggerUtils.Log().i("执行Get请求---" + reqStr);
-            if (!Preconditions.isNullOrEmpty(headerStr)) {
-                String[] headers = headerStr.split(",");
-                request = new Request.Builder()
-                        .url(reqStr)
-                        .addHeader(headers[0], headers[1])
-                        .build();
-            } else {
-                request = new Request.Builder().url(reqStr).build();
-            }
+            request = buildSimpleGetRequest(url, params);
         } else if (method.equals(METHOD_DELETE)) {  //Delete请求
-            String reqStr;
-            if (!Preconditions.isNullOrEmpty(params)) {
-                reqStr = attachHttpGetParams(url, params);
-            } else {
-                reqStr = url;
-            }
-            LoggerUtils.Log().i("执行Delete请求---" + reqStr);
-            request = new Request.Builder().url(reqStr).delete().build();
+            request = buildSimpleDeleteRequest(url, params);
         } else if (method.equals(METHOD_PATCH)) {  //Patch请求
             if (!Preconditions.isNullOrEmpty(params)) {
                 request = buildSimplePathRequest(url, params);
@@ -510,7 +422,7 @@ public class OkHttpUtil {
         } else if (method.equals(METHOD_NO_PARAM_PATCH)) {  //Patch请求
             request = buildSimplePathRequest(url, params);
             LoggerUtils.Log().i("执行Patch请求---" + url);
-        } else if (method.equals(METHOD_POST_QUERY)) {  //Patch请求
+        } else if (method.equals(METHOD_POST_QUERY)) {
             if (!Preconditions.isNullOrEmpty(params)) {
                 request = buildSimplePostRequest(url, params);
             }
@@ -521,8 +433,7 @@ public class OkHttpUtil {
             }
             LoggerUtils.Log().i("执行Put请求---地址:" + url + "参数:" + params);
         } else { //Post请求
-            LoggerUtils.Log().i("执行Post请求---地址:" + url + "参数:" + params);
-            if (o == null) {
+            if (Preconditions.isNullOrEmpty(o)) {
                 if (Preconditions.isNullOrEmpty(keyFileList)) {
                     request = buildSimplePostJsonRequest(url, params);
                 } else {
@@ -530,9 +441,9 @@ public class OkHttpUtil {
                 }
             } else {
                 if (o instanceof String) {
-                    request = buildSimplePostStringRequest(url, (String) o);
+                    request = buildSimplePostStringRequest(url, params, (String) o);
                 } else {
-                    request = buildSimplePostJsonRequest(url, o);
+                    request = buildSimplePostJsonRequest(url, params, o);
                 }
             }
         }
@@ -543,7 +454,8 @@ public class OkHttpUtil {
      * 构造一个简单的Path请求体
      */
     private static Request buildSimplePathRequest(String url, Map<String, Object> params) {
-
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
         FormBody.Builder formbuilder = new FormBody.Builder();
         if (!Preconditions.isNullOrEmpty(params)) {
             for (String key : params.keySet()) {
@@ -555,73 +467,82 @@ public class OkHttpUtil {
         }
         // Create RequestBody
         RequestBody build = formbuilder.build();
-        return new Request.Builder().url(url).patch(build).build();
+        return requestBuilder.patch(build).build();
     }
 
     /**
      * 构造一个简单的PUT Json请求体
      */
     private static Request buildSimplePutJsonRequest(String url, Map<String, Object> params) {
-        if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
-            String headerStr = (String) params.get("HEADER");
-            String[] headers = headerStr.split(",");
-            params.remove("HEADER");
-            RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-            return new Request.Builder().url(url).put(requestBody).addHeader(headers[0], headers[1]).build();
-        }
-        //JSON字符串
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-        return new Request.Builder().url(url).put(requestBody).build();
+        return requestBuilder.put(requestBody).build();
     }
 
-    private static Request buildSimplePostStringRequest(String url, String val) {
+    private static Request buildSimplePostStringRequest(String url, Map<String, Object> params, String val) {
         //字符串
-        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JSON, val);
-        return new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .addHeader("Content-Type", "application/json")
-                .build();
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
+        RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, val);
+        return requestBuilder.post(requestBody).build();
     }
 
     /**
      * 构造一个简单的Post Json请求体
      */
     private static Request buildSimplePostJsonRequest(String url, Map<String, Object> params) {
-        if (!Preconditions.isNullOrEmpty(params.get("HEADER"))) {
-            String headerStr = (String) params.get("HEADER");
-            String[] headers = headerStr.split(",");
-            params.remove("HEADER");
-            //JSON字符串
-            RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-            return new Request.Builder()
-                    .url(url)
-                    .post(requestBody)
-                    .addHeader(headers[0], headers[1])
-                    .build();
-        }
-        //JSON字符串
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
         RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-        return new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build();
+        return requestBuilder.post(requestBody).build();
     }
 
-    private static Request buildSimplePostJsonRequest(String url, Object params) {
-        //JSON字符串
-        RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(params));
-        return new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build();
+    private static Request buildSimplePostJsonRequest(String url, Map<String, Object> params, Object o) {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
+        RequestBody requestBody = FormBody.create(MEDIA_TYPE_JSON, JSON.toJSONString(o));
+        return requestBuilder.post(requestBody).build();
+    }
+
+    /**
+     * 构造一个简单的Get请求体
+     */
+    private static Request buildSimpleGetRequest(String url, Map<String, Object> params) {
+        Request.Builder requestBuilder = new Request.Builder();
+        addHeader(requestBuilder, params);
+        String reqStr;
+        if (!Preconditions.isNullOrEmpty(params)) {
+            reqStr = attachHttpGetParams(url, params);
+        } else {
+            reqStr = url;
+        }
+        LoggerUtils.Log().i("执行Get请求---" + reqStr);
+        return requestBuilder.url(reqStr).build();
+    }
+
+    /**
+     * 构造一个简单的Delete请求体
+     */
+    private static Request buildSimpleDeleteRequest(String url, Map<String, Object> params) {
+        Request.Builder requestBuilder = new Request.Builder();
+        addHeader(requestBuilder, params);
+        String reqStr;
+        if (!Preconditions.isNullOrEmpty(params)) {
+            reqStr = attachHttpGetParams(url, params);
+        } else {
+            reqStr = url;
+        }
+        LoggerUtils.Log().i("执行Delete请求---" + reqStr);
+        return requestBuilder.url(reqStr).delete().build();
     }
 
     /**
      * 构造一个简单的Post请求体
      */
     private static Request buildSimplePostRequest(String url, Map<String, Object> params) {
-
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
         FormBody.Builder formbuilder = new FormBody.Builder();
         if (!Preconditions.isNullOrEmpty(params)) {
             for (String key : params.keySet()) {
@@ -631,10 +552,9 @@ public class OkHttpUtil {
                 }
             }
         }
-
         // Create RequestBody
         RequestBody build = formbuilder.build();
-        return new Request.Builder().url(url).post(build).build();
+        return requestBuilder.post(build).build();
     }
 
     /**
@@ -664,8 +584,7 @@ public class OkHttpUtil {
                 String key = filePath.getKey();
                 String path = filePath.getValue();
                 if (!Preconditions.isNullOrEmpty(key) && !Preconditions.isNullOrEmpty(path)) {
-                    builder.addFormDataPart(
-                            key, path.split(File.separator)[path.split(File.separator).length - 1], RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
+                    builder.addFormDataPart(key, path.split(File.separator)[path.split(File.separator).length - 1], RequestBody.create(MEDIA_TYPE_PNG, new File(path)));
                 }
             }
         }
@@ -675,15 +594,6 @@ public class OkHttpUtil {
 
     private static String attachHttpGetParams(String url, Map<String, Object> params) {
         StringBuilder sb = new StringBuilder(url);
-        if (!Preconditions.isNullOrEmpty(params)) {
-            sb.append("?");
-            sb.append(formatParams(params));
-        }
-        return sb.toString();
-    }
-
-    private static String attachHttpGetParams(Map<String, Object> params) {
-        StringBuilder sb = new StringBuilder();
         if (!Preconditions.isNullOrEmpty(params)) {
             sb.append("?");
             sb.append(formatParams(params));
@@ -749,5 +659,17 @@ public class OkHttpUtil {
             e.printStackTrace();
         }
         return str;
+    }
+
+    private static void addHeader(Request.Builder requestBuilder, Map<String, Object> params) {
+        if (!Preconditions.isNullOrEmpty(params)) {
+            if (!Preconditions.isNullOrEmpty(params.get(HEADER_KEY))) {
+                Map<String, String> headers = (Map<String, String>) params.get(HEADER_KEY);
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    requestBuilder.addHeader(entry.getKey(), entry.getValue());
+                }
+                params.remove(HEADER_KEY);
+            }
+        }
     }
 }
