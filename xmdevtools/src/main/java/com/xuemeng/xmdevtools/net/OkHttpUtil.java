@@ -137,21 +137,25 @@ public class OkHttpUtil {
     }
 
     public static <T> T post(Class<T> cls, String url) {
-        return post(cls, url, new HashMap<String, Object>());
+        return post(cls, url, new HashMap<>(), null);
     }
 
     //同步post
-    public static <T> T post(Class<T> cls, String url, Map<String, Object> params) {
-        return doPost(cls, url, params, null, true, null);
+    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPost(cls, url, params, null, true, callback);
     }
 
-    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, Object o) {
-        return doPost(cls, url, params, null, true, null, o);
+    public static <T> T post(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
+        return doPost(cls, url, params, null, true, callback, o);
     }
 
     //同步post 但返回数据很大
-    public static <T> T postHeavy(Class<T> cls, String url, Map<String, Object> params) {
-        return doPost(cls, url, params, null, false, null);
+    public static <T> T postHeavy(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPost(cls, url, params, null, false, callback);
+    }
+
+    public static <T> T postHeavy(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
+        return doPost(cls, url, params, null, false, callback, o);
     }
 
     //异步post
@@ -163,12 +167,12 @@ public class OkHttpUtil {
         doPost(cls, url, params, null, true, callback, o);
     }
 
-    public static <T> T postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
-        return doPost(cls, url, params, null, false, callback);
+    public static <T> void postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        doPost(cls, url, params, null, false, callback);
     }
 
-    public static <T> T postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
-        return doPost(cls, url, params, null, false, callback, o);
+    public static <T> void postAsyncHeavy(Class<T> cls, String url, Map<String, Object> params, Object o, ResponseCallback callback) {
+        doPost(cls, url, params, null, false, callback, o);
     }
 
     //请求byte[]
