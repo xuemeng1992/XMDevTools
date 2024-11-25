@@ -1,6 +1,5 @@
 package com.xuemeng.xmdevtools.net;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -18,13 +17,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 
 import okhttp3.ConnectionPool;
 import okhttp3.FormBody;
@@ -102,8 +99,8 @@ public class OkHttpUtil {
         return doPatch(cls, url, params, true, callback);
     }
 
-    public static <T> T put(Class<T> cls, String url, Map<String, Object> params) {
-        return doPut(cls, url, params, true, null);
+    public static <T> T put(Class<T> cls, String url, Map<String, Object> params, ResponseCallback callback) {
+        return doPut(cls, url, params, true, callback);
     }
 
     public static <T> T get(Class<T> cls, String url) {
@@ -292,6 +289,9 @@ public class OkHttpUtil {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            if (!Preconditions.isNullOrEmpty(callback)) {
+                callback.onFailure(e);
+            }
         }
         response.body().close();
         return resultStr;
