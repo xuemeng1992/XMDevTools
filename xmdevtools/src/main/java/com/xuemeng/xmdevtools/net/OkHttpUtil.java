@@ -570,8 +570,11 @@ public class OkHttpUtil {
      * @return
      */
     private static Request buildMultiFileRequest(String url, Map<String, Object> params, ArrayList<KeyValue> fileKeyPathList) {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        addHeader(requestBuilder, params);
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
+
         //添加参数
         if (!Preconditions.isNullOrEmpty(params)) {
             for (String key : params.keySet()) {
@@ -593,7 +596,7 @@ public class OkHttpUtil {
             }
         }
         RequestBody requestBody = builder.build();
-        return new Request.Builder().url(url).post(requestBody).build();
+        return requestBuilder.post(requestBody).build();
     }
 
     private static String attachHttpGetParams(String url, Map<String, Object> params) {
